@@ -1,9 +1,21 @@
-import { build } from "./app.js";
+import { build } from './app.js';
+import dotenv from 'dotenv';
+import closeWithGrace from 'close-with-grace';
 
-const options = {   logger: true    };
+dotenv.config();
+
+const options = { logger: true };
 
 const app = await build(options);
-const port = 3000;
 
+const port = process.env.PORT || '3000';
+const host = process.env.HOST || '127.0.0.1';
 
-await app.listen({port: port});
+await app.listen({port, host});
+
+closeWithGrace(async ({ signal , err}) => {
+    if(err)
+        app.log.error(`Server closing due to an error: ${err.message}`);
+    else
+        app.log.info(`${signal} signal received.`);
+});

@@ -7,7 +7,7 @@ export default async function products(app, options)
 {
     const ModelError = createError("Model State Invalid.", "Error mensage: ", 400)
 
-    app.get('/products' , {
+    app.post('/products/create' , {
         schema: {
             body: {
                 type: 'object',
@@ -17,20 +17,24 @@ export default async function products(app, options)
                     description: { type: 'string' },
                     qtd: { type: 'integer' }
                 },
-                required: ['name', 'qtd']
+                required: ['name', 'description' ,'qtd']
             }
         }
     }, async (request, reply) => {
-        return reply.sendFile('products.html');
-    });
-
-    app.post('/products/create', async (req, reply) => {
         let product = req.body;
-        if(  product.id != null && product.name != null && product.qtd != null)
+        if(  product.id != null && product.name != null && product.qtd != null && product.description != null)
         {
             return product;
         } else{
             return ModelError;
         }
+    });
+
+    app.get('/products/:id?', { config: {logMe: true} } ,async (request, reply) => {
+        return {};
+    })
+
+    app.delete('/products/delete/:id', async (req, reply) => {
+        return {};
     })
 }

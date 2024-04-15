@@ -75,4 +75,11 @@ export default async function products(app, options) {
         
         return reply.code(204).send();;
     });
+
+    app.get('/categories/:id/products', async (req, rep) => {
+        let id = req.params.id;
+        let productsArray = await products.find({cat_id: id}).toArray();
+
+        return productsArray;
+    });
 }

@@ -2,11 +2,40 @@ import { test, describe } from 'node:test';
 import { equal, deepEqual } from 'node:assert';
 import { build, options } from './app.js';
 
-describe('###Tests for Server Configuration', async(t) => {
+const jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBhdWxvIiwicGFzc3dkIjoiYXNkIiwiaWF0IjoxNzEzNTI1MDkxfQ.JcPscrzsBlDEmYb7x-bwbrJ8yEx5Av9xS0Zh3bsBFmY"
+
+const productTest = "ProductTest" + (Math.random() * 100) + (Math.random() * 100)
+
+const CreateCategorieTest = {
+    name: 'Category',
+    imgUrl: 'imgUrlTemplate',
+}
+
+const CreateUserTest = {
+    username: 'abobobobo',
+    passwd: '69123'
+}
+
+const CreateProductTest = {
+    name: productTest,
+    qtd: '100',
+    cat_id: '6616ca6fc0c1625999b9ef7f'
+}
+
+const UpdateProductTeste = {
+    name: "Abu",
+    qtd: 100
+}
+
+const UpdateCategorieTest = {
+    name: 'Testcategorie',
+    img_url: 'urltemplate'
+}
+
+describe('###Tests for Server Configuration', async (t) => {
     test('Testing options configuration file', async (t) => {
         const app = await build(options);
-
-        t.after(async() => {
+        t.after(async () => {
             await app.close();
         });
 
@@ -18,13 +47,12 @@ describe('###Tests for Server Configuration', async(t) => {
     });
 });
 
-describe('###Tests for Unauthenticated Routes', async(t) => {
-    
-    describe('##Success Requests', async(t) => {
-        test('# GET /products', async(t) => {
-            const app = await build(options);
+describe('###Tests for Routes', async (t) => {
 
-            t.after(async() => {
+    describe('##Success Requests', async (t) => {
+        test('# GET /products', async (t) => {
+            const app = await build(options);
+            t.after(async () => {
                 await app.close();
             });
             const response = await app.inject({
@@ -34,13 +62,165 @@ describe('###Tests for Unauthenticated Routes', async(t) => {
 
             equal(response.statusCode, 200);
         });
+        test('# POST /products', async (t) => {
+            const app = await build(options);
+            t.after(async () => {
+                await app.close();
+            });
+            const response = await app.inject({
+                method: 'POST',
+                url: '/products',
+                body: CreateProductTest,
+                headers: { "x-access-token": jwtToken }
+
+            });
+
+            equal(response.statusCode, 201)
+        });
+
+        test('# DELETE /products', async(t) => {
+            const app = await build(options);
+
+            t.after(async() => {
+            await app.close();
+            });
+
+            const response = await app.inject({
+                method: 'DELETE',
+                url: '/products/662255dbcf2b820d8886709f',
+                headers: {
+                    'x-access-token': jwtToken
+                }
+
+            });
+            equal(response.statusCode, 204);
+        });
+
+
+        test('# PUT /products/66224f13accb8095f1246264', async (t) => {
+            const app = await build(options);
+
+            t.after(async () => {
+                await app.close();
+            });
+            const response = await app.inject({
+                method: 'PUT',
+                url: 'products/66224f13accb8095f1246264',
+                body: UpdateProductTeste,
+                headers: { "x-access-token": jwtToken }
+            });
+
+            equal(response.statusCode, 204)
+        })
     });
 
-    describe('##Bad Requests', async(t) => {
+    describe('##Bad Requests', async (t) => {
+        test('# no token', async (t) => {
+            const app = await build(options);
 
+            t.after(async () => {
+                await app.close();
+            });
+
+            const response = await app.inject({
+                method: 'PUT',
+                url: '/products/6616ca5a7c88395ea9a658a9',
+                body: UpdateCategorieTest,
+                headers: {
+
+                }
+            });
+            equal(response.statusCode, 401);
+        });
+        test('# invalid token', async (t) => {
+            const app = await build(options);
+
+            t.after(async () => {
+                await app.close();
+            });
+
+            let originalString = "stringzona";
+            let newString = "newstring"
+
+            const response = await app.inject({
+                method: 'PUT',
+                url: '/categories/660161914e199a258a5a5e59',
+                body: UpdateCategorieTest,
+                headers: {
+                    'x-access-token': newString
+                }
+            });
+            equal(response.statusCode, 401);
+        });
+
+        test('# Not found', async (t) => {
+            const app = await build(options);
+
+            t.after(async () => {
+                await app.close();
+            });
+
+            const response = await app.inject({
+                method: 'GET',
+                url: '/notfound'
+            });
+            equal(response.statusCode, 404);
+        });
     });
+
 });
 
-describe('###Tests for Authenticated routes', async(t) => {
+describe('###Tests for Authenticated routes', async (t) => {
+    describe('##Success Request', async (t) => {
+        test('# POST /categories', async (t) => {
+            const app = await build(options);
 
+            t.after(async () => {
+                await app.close();
+            });
+
+            const response = await app.inject({
+                method: 'POST',
+                url: '/categories',
+                body: CreateCategorieTest,
+                headers: {
+                    'x-access-token': jwtToken
+                }
+            });
+            equal(response.statusCode, 201);
+        });
+    });
+
+    test('# POST /categories', async (t) => {
+        const app = await build(options);
+
+        t.after(async () => {
+            await app.close();
+        });
+
+        const response = await app.inject({
+            method: 'GET',
+            url: '/categories',
+        });
+        equal(response.statusCode, 200);
+    });
+
+    test('# POST /register', async(t) => {
+        const app = await build(options);
+
+        t.after(async() => {
+        await app.close();
+        });
+
+        const response = await app.inject({
+            method: 'POST',
+            url: '/register',
+            body: CreateUserTest,
+            headers: {
+                'x-access-token': jwtToken
+            }
+
+        });
+        equal(response.statusCode, 201);
+    });
 });

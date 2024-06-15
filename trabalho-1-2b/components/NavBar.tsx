@@ -11,11 +11,12 @@ const Navbar = () => {
           <Link href="/" passHref>
             <span className="cursor-pointer hover:text-blue-500">Home</span>
           </Link>
-          <Link href="/books" passHref>
-            <span className="cursor-pointer hover:text-blue-500">Books</span>
-          </Link>
+          
           <Link href="/login" passHref>
             <span className="cursor-pointer hover:text-blue-500">Login</span>
+          </Link>
+          <Link href="/register" passHref>
+            <span className="cursor-pointer hover:text-blue-500">Register</span>
           </Link>
         </div>
       </div>

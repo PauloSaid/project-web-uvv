@@ -32,6 +32,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     const router = useRouter();
 
     async function login({ username, password }: SignIdData) {
+    try{
         let { 'x-access-token': token } = await request<UserAuthentication>('http://127.0.0.1:8080/auth', {
             method: 'POST',
             headers: {
@@ -42,13 +43,18 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             cache: 'no-store'
         });
 
-        if (!token) setAuthError('Usuário ou senha inválidos. Verifique e tente novamente!');
-        else {
-            setCookie(null, 'auth.token', token, {
+        if (!token){ 
+            setAuthError('Usuário ou senha inválidos. Verifique e tente novamente!');
+            return;
+        }
+
+        setCookie(null, 'auth.token', token, {
                 maxAge: 60 * 60 * 1,
             });
-            router.push('/#');
-        }
+            router.push('/books');
+        }catch(error) {
+                setAuthError('Erro ao realizar login.');
+            }
     }
 
     async function registerUser({ username, password }: SignUpData) {

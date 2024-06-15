@@ -8,7 +8,6 @@ const bookTest = "bookTest" + (Math.random() * 100) + (Math.random() * 100)
 
 const CreateCategorieTest = {
     name: 'Category',
-    imgUrl: 'imgUrlTemplate',
 }
 
 const CreateUserTest = {
@@ -29,7 +28,6 @@ const UpdateBookTeste = {
 
 const UpdateCategorieTest = {
     name: 'Testcategorie',
-    img_url: 'urltemplate'
 }
 
 describe('###Tests for Server Configuration', async (t) => {

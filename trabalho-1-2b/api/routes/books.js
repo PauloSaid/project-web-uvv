@@ -1,5 +1,6 @@
 /** @type{import('fastify').FastifyPluginAsync<>} */
 import createError from '@fastify/error';
+import { type } from 'os';
 export default async function books(app, options) {
     const InvalidBookError = createError('InvalidBookError', 'Produto Inválido.', 400);
 
@@ -24,9 +25,10 @@ export default async function books(app, options) {
                     id: { type: 'integer' },
                     name: { type: 'string' },
                     qtd: { type: 'integer' },
-                    price: { type: 'integer'}
+                    price: { type: 'integer'},
+                    cat_id: {type: 'string'}
                 },
-                required: ['name', 'qtd', 'price']
+                required: ['name', 'qtd', 'price', 'cat_id']
             }
         },
         config: {
@@ -77,11 +79,5 @@ export default async function books(app, options) {
         
         return reply.code(204).send();;
     });
-
-    app.get('/categories/:id/books', async (req, rep) => {
-        let id = req.params.id;
-        let booksArray = await books.find({cat_id: id}).toArray();
-
-        return booksArray;
-    });
+   
 }

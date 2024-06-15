@@ -1,9 +1,11 @@
 /** @type{import('fastify').FastifyPluginAsync<>} */
 import createError from '@fastify/error';
+import books from './books.js';
 export default async function categories(app, options) {
     const InvalidCategoryError = createError('InvalidCategoryError', 'Categoria Inválida.', 400);
 
     const categories = app.mongo.db.collection('categories');
+    const book = app.mongo.db.collection('books');
 
     app.get('/categories', 
         {
@@ -23,9 +25,8 @@ export default async function categories(app, options) {
                 properties: {
                     id: { type: 'integer' },
                     name: { type: 'string' },
-                    imgUrl: { type: 'string' }
                 },
-                required: ['name', 'imgUrl']
+                required: ['name']
             }
         },
         config: {
@@ -44,6 +45,13 @@ export default async function categories(app, options) {
         let category = await categories.findOne({_id: new app.mongo.ObjectId(id)});
         
         return category;
+    });
+
+    app.get('/categories/:id/books', async (req, rep) => {
+        let id = req.params.id;
+        let books = await book.find({cat_id: id}).toArray();
+        
+        return books;
     });
     
     app.delete('/categories/:id', {
@@ -69,7 +77,6 @@ export default async function categories(app, options) {
         await categories.updateOne({_id: new app.mongo.ObjectId(id)}, {
             $set: {
                 name: category.name,
-                imgUrl: category.imgUrl
             }
         });
         

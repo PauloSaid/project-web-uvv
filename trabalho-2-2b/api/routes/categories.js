@@ -1,6 +1,5 @@
 /** @type{import('fastify').FastifyPluginAsync<>} */
 import createError from '@fastify/error';
-import books from './books.js';
 export default async function categories(app, options) {
     const InvalidCategoryError = createError('InvalidCategoryError', 'Categoria Inválida.', 400);
 
